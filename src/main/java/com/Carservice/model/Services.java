@@ -17,9 +17,13 @@ public class Services {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name="serviceName")
     private String serviceName;
+    @Column(name="servicePrice")
     private int servicePrice;
     private double carPrice;
+    @Column(name="time")
     private String time;
+    @Column(name="carType")
     private String carType;
 }

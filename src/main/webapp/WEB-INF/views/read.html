@@ -5,15 +5,30 @@
 <head>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <title>Create User</title>
+    <title>User</title>
     <script type="text/javascript" src="/js/jquery-3.6.0.js"></script>
 </head>
 
 <body>
 <div class="w3-container">
+    <p id="id" hidden><span th:text="${id}"/></p>
 
     <div class="w3-container w3-bar w3-blue">
-        <span class="w3-bar-item" style="padding-left:1px"><b>Create User</b></span>
+        <span class="w3-bar-item" style="padding-left:1px"><b>View User</b></span>
+
+        <a th:href="@{'/ui/user/update/' + ${id}}" class="w3-bar-item w3-button" style="float: right;">
+            <img th:src="@{/images/icon_edit.gif}"
+                 alt="modify"
+                 style="width:27px;height:27px;"
+                 title="modify"></a>
+
+        <span class="w3-bar-item w3-button" style="float: right;">
+            <img th:src="@{/images/icon_delete.gif}"
+                 alt="delete"
+                 style="width:27px;height:27px;"
+                 title="delete"
+                 id="btnDeleteEntity">
+        </span>
 
         <span class="w3-bar-item w3-button" style="float: right;">
             <img th:src="@{/images/icon_logout.jpg}"
@@ -29,46 +44,24 @@
                  style="width:27px;height:27px;"
                  title="home"></a>
     </div>
+
     <br>
 
-    <table id="create_entity_table" class="w3-table w3-bordered">
+    <table id="entity_table" class="w3-table w3-striped w3-bordered">
         <tr>
             <th>Property Name</th>
             <th>Property Value</th>
         </tr>
-
-        <tr>
-            <td>Id</td>
-            <td><input id="id" name="user_id_name" type="text"></td>
-        </tr>
-        <tr>
-            <td>Full Name</td>
-            <td><input id="user_full_name" name="user_full_name_name" type="text"></td>
-        </tr>
-        <tr>
-            <td>Email</td>
-            <td><input id="user_email" name="user_email_email" type="text"></td>
-        </tr>
-        <!--        <tr>-->
-        <!--            <td>Login</td>-->
-        <!--            <td><input id="user_login" name="user_login_name" type="text"></td>-->
-        <!--        </tr>-->
-        <!--        <tr>-->
-        <!--            <td>Password</td>-->
-        <!--            <td><input id="user_password" name="user_password_name" type="text"></td>-->
-        <!--        </tr>-->
     </table>
 
     <br>
     <br>
 
-    <div class="container">
-        <button id="btnSave" class="btnSaveEntity">Save</button>
-        <button onclick="location.href='/ui/user/list'" type="button">Cancel</button>
-    </div>
+    <form action="/ui/user/list">
+        <input type="submit" value="Back"/>
+    </form>
 
     <!--    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>-->
-
     <script type="text/javascript">
 
         $.ajaxSetup({
@@ -79,39 +72,17 @@
             }
         });
 
-        //function UserDTO(id,fullName,email,login,password){
-        //    this.id = id;
-        //    this.fullName = fullName;
-        //    this.email = lastName;
-        //    this.login = login;
-        //    this.password = password;
-        //}
 
-        function UserDTO(id,fullName,email){
-            this.id = id;
-            this.fullName = fullName;
-            this.email = email;
-        }
-
-        $(document).delegate('#btnSave','click',function(event){
+        $(document).delegate('#btnDeleteEntity','click',function(event){
             event.preventDefault();
 
-            var id = $('#id').val();
-            var fullName = $('#user_full_name').val();
-            var email = $('#user_email').val();
-            //var login = $('#user_login').val();
-            //var password = $('#user_password').val();
+            var id = $('#id').text();
 
-            //var userDTO = new UserDTO(id,firstName,lastName,login,password);
-            var userDTO = new UserDTO(id,fullName,email);
-
-            console.log(userDTO);
-            console.log(JSON.stringify(userDTO));
+            console.log(id);
 
             $.ajax({
-                type: "POST",
-                url: "/user",
-                data: JSON.stringify(userDTO),
+                type: "DELETE",
+                url: '/user/' + id,
                 success: function(result){
                     location.href="/ui/user/list";
                     window.setTimeout(function(){
@@ -119,10 +90,40 @@
                     }, 1000);
                 },
                 error: function(err){
-                    alert('POST REQUEST ERROR!');
+                    alert('DELETE REQUEST ERROR!');
                 }
             });
         });
+
+
+        function ajaxGet(){
+
+            var id = $('#id').text();
+
+            $.getJSON('/user/' + id, function(json){
+
+                console.log(json);
+
+                var tr = [];
+
+                tr.push('<tr>');
+                tr.push('<td>Id</td>');
+                tr.push('<td>' + json.id+'</td>');
+                tr.push('</tr>');
+
+                tr.push('<tr>');
+                tr.push('<td>Full Name</td>');
+                tr.push('<td>' + json.fullName+'</td>');
+                tr.push('</tr>');
+
+                tr.push('<tr>');
+                tr.push('<td>Email</td>');
+                tr.push('<td>' + json.email+'</td>');
+                tr.push('</tr>');
+
+                $('#entity_table').append($(tr.join('')))
+            });
+        }
 
         $(document).delegate('#btnLogout','click',function(event){
             event.preventDefault();
@@ -140,6 +141,10 @@
                     alert('LOGOUT ERROR!');
                 }
             });
+        });
+
+        $(document).ready(function() {
+            ajaxGet();
         });
 
     </script>
